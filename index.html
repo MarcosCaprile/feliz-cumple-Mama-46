@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#7c3aed">
+  <title>Ahnang Tetris — ¡Feliz cumpleaños, mamá!</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="confetti" aria-hidden="true"></div>
+  <main class="app">
+    <header class="hero">
+      <img src="assets/ahnang-portrait.png" alt="Retrato pixel art de Ahnang" class="portrait">
+      <div>
+        <p class="eyebrow">Un regalo hecho con mucho cariño</p>
+        <h1>Ahnang Tetris</h1>
+        <p>¡Feliz cumpleaños, mamá! Cada pieza representa una pose tuya 💜</p>
+      </div>
+    </header>
+
+    <section class="layout" aria-label="Juego de Tetris">
+      <aside class="panel">
+        <div class="stat"><span>Puntos</span><strong id="score">0</strong></div>
+        <div class="stat"><span>Nivel</span><strong id="level">1</strong></div>
+        <div class="stat"><span>Líneas</span><strong id="lines">0</strong></div>
+        <div class="card">
+          <h2>Guardada</h2>
+          <canvas id="hold" width="150" height="130" aria-label="Pieza guardada"></canvas>
+        </div>
+        <button id="pauseBtn" class="secondary">Pausa</button>
+      </aside>
+
+      <section class="board-wrap">
+        <canvas id="game" width="320" height="640" aria-label="Tablero de Tetris"></canvas>
+        <div id="overlay" class="overlay visible">
+          <div class="overlay-card">
+            <span class="spark">✦</span>
+            <h2 id="overlayTitle">¡Feliz cumpleaños, mamá!</h2>
+            <p id="overlayText">Completa líneas con las poses pixeladas de Ahnang</p>
+            <button id="startBtn" class="primary">Empezar</button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel">
+        <div class="card">
+          <h2>Siguiente</h2>
+          <canvas id="next" width="150" height="180" aria-label="Siguiente pieza"></canvas>
+        </div>
+        <div class="controls">
+          <h2>Controles</h2>
+          <p><kbd>←</kbd><kbd>→</kbd> Mover</p>
+          <p><kbd>↑</kbd> Girar</p>
+          <p><kbd>↓</kbd> Bajar</p>
+          <p><kbd>Espacio</kbd> Caída rápida</p>
+          <p><kbd>C</kbd> Guardar</p>
+          <p><kbd>P</kbd> Pausa</p>
+        </div>
+        <button id="restartBtn" class="secondary">Reiniciar</button>
+      </aside>
+    </section>
+
+    <section class="mobile-controls" aria-label="Controles táctiles">
+      <button data-action="left">◀</button>
+      <button data-action="rotate">⟳</button>
+      <button data-action="right">▶</button>
+      <button data-action="down">▼</button>
+      <button data-action="drop">⤓</button>
+      <button data-action="hold">G</button>
+    </section>
+
+    <footer>Para Ahnang, con amor, paciencia y muchísimos píxeles ✨</footer>
+  </main>
+  <script src="js/game.js"></script>
+</body>
+</html>

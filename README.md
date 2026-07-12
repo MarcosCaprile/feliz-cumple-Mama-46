@@ -1,39 +1,38 @@
 # Ahnang Tetris 💜
 
-Ein vollständiges, responsives Tetris-Spiel als Geburtstagsgeschenk. Alle Tetrominos werden als Retro-Pixel-Posen der Figur gerendert.
+Juego completo de Tetris en español, creado como regalo de cumpleaños. Las siete piezas utilizan imágenes PNG distintas del personaje pixelado de Ahnang en poses inspiradas en las formas I, O, T, J, L, S y Z.
 
-## Lokal starten
+## Abrir el juego
 
-Einfach `index.html` im Browser öffnen.
-
-Für einen lokalen Webserver:
+Puedes abrir `index.html` directamente o iniciar un servidor local:
 
 ```bash
 python -m http.server 8000
 ```
 
-Dann `http://localhost:8000` öffnen.
+Después abre `http://localhost:8000`.
 
-## Auf GitHub Pages veröffentlichen
+## Publicarlo con GitHub Pages
 
-1. Einen neuen GitHub-Repository erstellen
-2. Den kompletten Inhalt dieses Ordners hochladen
-3. Unter **Settings → Pages** als Quelle `Deploy from a branch` wählen
-4. Branch `main` und Ordner `/root` auswählen
-5. Nach kurzer Zeit ist die Website über die angezeigte GitHub-Pages-Adresse erreichbar
+1. Crea un repositorio nuevo en GitHub
+2. Sube todo el contenido de esta carpeta
+3. Abre **Settings → Pages**
+4. Selecciona **Deploy from a branch**
+5. Elige la rama `main` y la carpeta `/root`
 
-## Steuerung
+## Controles
 
-- Pfeiltasten links/rechts: bewegen
-- Pfeil hoch: drehen
-- Pfeil runter: schneller fallen
-- Leertaste: Hard Drop
-- C oder Shift: Teil halten
-- P oder Escape: Pause
+- Flechas izquierda y derecha: mover
+- Flecha arriba: girar
+- Flecha abajo: bajar
+- Espacio: caída rápida
+- C o Shift: guardar pieza
+- P o Escape: pausa
 
-## Dateien
+## Estructura
 
-- `index.html` – Seitenstruktur
-- `styles.css` – Design und mobile Ansicht
-- `js/game.js` – vollständige Tetris-Logik und Pixel-Pose-Rendering
-- `assets/ahnang-portrait.png` – das bereitgestellte Retro-Pixel-Bild
+- `index.html`: estructura de la página
+- `styles.css`: diseño responsive
+- `js/game.js`: lógica completa del Tetris
+- `assets/ahnang-portrait.png`: retrato original
+- `assets/poses/pose-*.png`: siete poses PNG transparentes
