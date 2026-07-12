@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#7c3aed" />
+  <title>Ahnang Tetris – Happy Birthday!</title>
+  <link rel="preload" as="image" href="assets/ahnang-portrait.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="bg-glow bg-glow-a"></div>
+  <div class="bg-glow bg-glow-b"></div>
+
+  <main class="app-shell">
+    <header class="hero">
+      <div class="portrait-frame">
+        <img src="assets/ahnang-portrait.png" alt="Retro-Pixel-Porträt von Ahnang" />
+      </div>
+      <div>
+        <p class="eyebrow">Ein kleines Geburtstagsgeschenk</p>
+        <h1>Ahnang Tetris</h1>
+        <p class="subtitle">Jeder Stein ist eine neue Pixel-Pose von dir 💜</p>
+      </div>
+    </header>
+
+    <section class="game-layout" aria-label="Tetris-Spiel">
+      <aside class="panel stats-panel">
+        <div class="stat"><span>Punkte</span><strong id="score">0</strong></div>
+        <div class="stat"><span>Level</span><strong id="level">1</strong></div>
+        <div class="stat"><span>Linien</span><strong id="lines">0</strong></div>
+
+        <div class="mini-card">
+          <h2>Halten</h2>
+          <canvas id="hold" width="140" height="120" aria-label="Gehaltenes Teil"></canvas>
+        </div>
+      </aside>
+
+      <section class="board-wrap">
+        <canvas id="game" width="300" height="600" aria-label="Tetris Spielfeld"></canvas>
+        <div id="overlay" class="overlay visible">
+          <div class="overlay-card">
+            <div class="tiny-sparkle">✦</div>
+            <h2 id="overlayTitle">Alles Gute zum Geburtstag!</h2>
+            <p id="overlayText">Baue Reihen mit Ahnangs Pixel-Posen und knacke deinen Highscore.</p>
+            <button id="startButton" class="primary-button">Spiel starten</button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel next-panel">
+        <div class="mini-card">
+          <h2>Nächstes Teil</h2>
+          <canvas id="next" width="150" height="180" aria-label="Nächstes Teil"></canvas>
+        </div>
+
+        <div class="controls-card">
+          <h2>Steuerung</h2>
+          <div class="key-row"><kbd>←</kbd><kbd>→</kbd><span>Bewegen</span></div>
+          <div class="key-row"><kbd>↑</kbd><span>Drehen</span></div>
+          <div class="key-row"><kbd>↓</kbd><span>Schneller</span></div>
+          <div class="key-row"><kbd>Leertaste</kbd><span>Fallen lassen</span></div>
+          <div class="key-row"><kbd>C</kbd><span>Halten</span></div>
+          <div class="key-row"><kbd>P</kbd><span>Pause</span></div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="mobile-controls" aria-label="Mobile Steuerung">
+      <button data-action="left" aria-label="Nach links">◀</button>
+      <button data-action="rotate" aria-label="Drehen">⟳</button>
+      <button data-action="right" aria-label="Nach rechts">▶</button>
+      <button data-action="down" aria-label="Nach unten">▼</button>
+      <button data-action="drop" aria-label="Sofort fallen">⤓</button>
+      <button data-action="hold" aria-label="Teil halten">H</button>
+    </section>
+
+    <footer>
+      Für Ahnang – mit Liebe und ganz vielen Pixeln ✨
+    </footer>
+  </main>
+
+  <script src="js/game.js"></script>
+</body>
+</html>
