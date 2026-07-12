@@ -1,77 +1,176 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#7c3aed">
-  <title>Ahnang Tetris — ¡Feliz cumpleaños, mamá!</title>
+
+  <title>Ahnang Tetris | Feliz cumpleaños, mamá</title>
+
   <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
-  <div class="confetti" aria-hidden="true"></div>
-  <main class="app">
+  <div class="background" aria-hidden="true"></div>
+
+  <main class="page-shell">
     <header class="hero">
-      <img src="assets/ahnang-portrait.png" alt="Retrato pixel art de Ahnang" class="portrait">
+      <img
+        class="hero-avatar"
+        src="assets/ahnang.png"
+        alt="Ahnang en estilo pixel art"
+      >
+
       <div>
-        <p class="eyebrow">Un regalo hecho con mucho cariño</p>
+        <p class="overline">Un regalo hecho especialmente para ti</p>
         <h1>Ahnang Tetris</h1>
-        <p>¡Feliz cumpleaños, mamá! Cada pieza representa una pose tuya 💜</p>
+        <p class="subtitle">¡Feliz cumpleaños, mamá! 💜</p>
       </div>
     </header>
 
-    <section class="layout" aria-label="Juego de Tetris">
-      <aside class="panel">
-        <div class="stat"><span>Puntos</span><strong id="score">0</strong></div>
-        <div class="stat"><span>Nivel</span><strong id="level">1</strong></div>
-        <div class="stat"><span>Líneas</span><strong id="lines">0</strong></div>
-        <div class="card">
+    <section class="game-layout">
+      <aside class="side-panel left-panel">
+        <article class="info-card score-card">
+          <span>Puntos</span>
+          <strong id="score">0</strong>
+        </article>
+
+        <article class="info-card">
+          <span>Nivel</span>
+          <strong id="level">1</strong>
+        </article>
+
+        <article class="info-card">
+          <span>Líneas</span>
+          <strong id="lines">0</strong>
+        </article>
+
+        <article class="preview-card">
           <h2>Guardada</h2>
-          <canvas id="hold" width="150" height="130" aria-label="Pieza guardada"></canvas>
-        </div>
-        <button id="pauseBtn" class="secondary">Pausa</button>
+          <canvas
+            id="holdCanvas"
+            width="180"
+            height="150"
+            aria-label="Pieza guardada"
+          ></canvas>
+        </article>
+
+        <button id="pauseButton" class="button secondary" type="button">
+          Pausa
+        </button>
       </aside>
 
-      <section class="board-wrap">
-        <canvas id="game" width="320" height="640" aria-label="Tablero de Tetris"></canvas>
-        <div id="overlay" class="overlay visible">
-          <div class="overlay-card">
-            <span class="spark">✦</span>
-            <h2 id="overlayTitle">¡Feliz cumpleaños, mamá!</h2>
-            <p id="overlayText">Completa líneas con las poses pixeladas de Ahnang</p>
-            <button id="startBtn" class="primary">Empezar</button>
+      <div class="board-column">
+        <div class="board-frame">
+          <canvas
+            id="gameCanvas"
+            width="320"
+            height="640"
+            aria-label="Tablero de Tetris"
+          ></canvas>
+
+          <div id="gameOverlay" class="overlay is-visible">
+            <div class="overlay-card">
+              <span class="overlay-icon">✦</span>
+
+              <h2 id="overlayTitle">¡Feliz cumpleaños, mamá!</h2>
+
+              <p id="overlayMessage">
+                Completa líneas con las poses pixeladas de Ahnang
+              </p>
+
+              <button id="overlayButton" class="button primary" type="button">
+                Empezar
+              </button>
+            </div>
           </div>
         </div>
-      </section>
 
-      <aside class="panel">
-        <div class="card">
+        <div class="touch-controls" aria-label="Controles táctiles">
+          <button type="button" data-action="left" aria-label="Mover a la izquierda">
+            ◀
+          </button>
+
+          <button type="button" data-action="rotate" aria-label="Girar">
+            ⟳
+          </button>
+
+          <button type="button" data-action="right" aria-label="Mover a la derecha">
+            ▶
+          </button>
+
+          <button type="button" data-action="down" aria-label="Bajar">
+            ▼
+          </button>
+
+          <button type="button" data-action="drop" aria-label="Caída rápida">
+            ⤓
+          </button>
+
+          <button type="button" data-action="hold" aria-label="Guardar pieza">
+            G
+          </button>
+        </div>
+      </div>
+
+      <aside class="side-panel right-panel">
+        <article class="preview-card next-card">
           <h2>Siguiente</h2>
-          <canvas id="next" width="150" height="180" aria-label="Siguiente pieza"></canvas>
-        </div>
-        <div class="controls">
+
+          <canvas
+            id="nextCanvas"
+            width="180"
+            height="180"
+            aria-label="Siguiente pieza"
+          ></canvas>
+        </article>
+
+        <article class="controls-card">
           <h2>Controles</h2>
-          <p><kbd>←</kbd><kbd>→</kbd> Mover</p>
-          <p><kbd>↑</kbd> Girar</p>
-          <p><kbd>↓</kbd> Bajar</p>
-          <p><kbd>Espacio</kbd> Caída rápida</p>
-          <p><kbd>C</kbd> Guardar</p>
-          <p><kbd>P</kbd> Pausa</p>
-        </div>
-        <button id="restartBtn" class="secondary">Reiniciar</button>
+
+          <p>
+            <kbd>←</kbd>
+            <kbd>→</kbd>
+            <span>Mover</span>
+          </p>
+
+          <p>
+            <kbd>↑</kbd>
+            <span>Girar</span>
+          </p>
+
+          <p>
+            <kbd>↓</kbd>
+            <span>Bajar</span>
+          </p>
+
+          <p>
+            <kbd>Espacio</kbd>
+            <span>Caída rápida</span>
+          </p>
+
+          <p>
+            <kbd>C</kbd>
+            <span>Guardar</span>
+          </p>
+
+          <p>
+            <kbd>P</kbd>
+            <span>Pausa</span>
+          </p>
+        </article>
+
+        <button id="restartButton" class="button secondary" type="button">
+          Reiniciar
+        </button>
       </aside>
     </section>
 
-    <section class="mobile-controls" aria-label="Controles táctiles">
-      <button data-action="left">◀</button>
-      <button data-action="rotate">⟳</button>
-      <button data-action="right">▶</button>
-      <button data-action="down">▼</button>
-      <button data-action="drop">⤓</button>
-      <button data-action="hold">G</button>
-    </section>
-
-    <footer>Para Ahnang, con amor, paciencia y muchísimos píxeles ✨</footer>
+    <footer>
+      Para Ahnang, con muchísimo amor y muchísimos píxeles ✨
+    </footer>
   </main>
+
   <script src="js/game.js"></script>
 </body>
 </html>
