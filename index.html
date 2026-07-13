@@ -4,8 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#7c3aed">
+  <meta name="description" content="Tetripil, un Tetris personalizado para el cumpleaños de Pilar">
 
-  <title>Ahnang Tetris | Feliz cumpleaños, mamá</title>
+  <title>Tetripil | Feliz cumpleaños, mamá</title>
 
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -17,13 +18,13 @@
     <header class="hero">
       <img
         class="hero-avatar"
-        src="assets/ahnang.png"
-        alt="Ahnang en estilo pixel art"
+        src="assets/pilar.png"
+        alt="Pilar en estilo pixel art"
       >
 
       <div>
         <p class="overline">Un regalo hecho especialmente para ti</p>
-        <h1>Ahnang Tetris</h1>
+        <h1>Tetripil</h1>
         <p class="subtitle">¡Feliz cumpleaños, mamá! 💜</p>
       </div>
     </header>
@@ -66,7 +67,7 @@
             id="gameCanvas"
             width="320"
             height="640"
-            aria-label="Tablero de Tetris"
+            aria-label="Tablero de Tetripil"
           ></canvas>
 
           <div id="gameOverlay" class="overlay is-visible">
@@ -76,7 +77,7 @@
               <h2 id="overlayTitle">¡Feliz cumpleaños, mamá!</h2>
 
               <p id="overlayMessage">
-                Completa líneas con las poses pixeladas de Ahnang
+                Completa líneas con las poses pixeladas de Pilar
               </p>
 
               <button id="overlayButton" class="button primary" type="button">
@@ -87,29 +88,12 @@
         </div>
 
         <div class="touch-controls" aria-label="Controles táctiles">
-          <button type="button" data-action="left" aria-label="Mover a la izquierda">
-            ◀
-          </button>
-
-          <button type="button" data-action="rotate" aria-label="Girar">
-            ⟳
-          </button>
-
-          <button type="button" data-action="right" aria-label="Mover a la derecha">
-            ▶
-          </button>
-
-          <button type="button" data-action="down" aria-label="Bajar">
-            ▼
-          </button>
-
-          <button type="button" data-action="drop" aria-label="Caída rápida">
-            ⤓
-          </button>
-
-          <button type="button" data-action="hold" aria-label="Guardar pieza">
-            G
-          </button>
+          <button type="button" data-action="left" aria-label="Mover a la izquierda">◀</button>
+          <button type="button" data-action="rotate" aria-label="Girar">⟳</button>
+          <button type="button" data-action="right" aria-label="Mover a la derecha">▶</button>
+          <button type="button" data-action="down" aria-label="Bajar">▼</button>
+          <button type="button" data-action="drop" aria-label="Caída rápida">⤓</button>
+          <button type="button" data-action="hold" aria-label="Guardar pieza">G</button>
         </div>
       </div>
 
@@ -128,36 +112,12 @@
         <article class="controls-card">
           <h2>Controles</h2>
 
-          <p>
-            <kbd>←</kbd>
-            <kbd>→</kbd>
-            <span>Mover</span>
-          </p>
-
-          <p>
-            <kbd>↑</kbd>
-            <span>Girar</span>
-          </p>
-
-          <p>
-            <kbd>↓</kbd>
-            <span>Bajar</span>
-          </p>
-
-          <p>
-            <kbd>Espacio</kbd>
-            <span>Caída rápida</span>
-          </p>
-
-          <p>
-            <kbd>C</kbd>
-            <span>Guardar</span>
-          </p>
-
-          <p>
-            <kbd>P</kbd>
-            <span>Pausa</span>
-          </p>
+          <p><kbd>←</kbd><kbd>→</kbd><span>Mover</span></p>
+          <p><kbd>↑</kbd><span>Girar</span></p>
+          <p><kbd>↓</kbd><span>Bajar</span></p>
+          <p><kbd>Espacio</kbd><span>Caída rápida</span></p>
+          <p><kbd>C</kbd><span>Guardar</span></p>
+          <p><kbd>P</kbd><span>Pausa</span></p>
         </article>
 
         <button id="restartButton" class="button secondary" type="button">
@@ -167,7 +127,7 @@
     </section>
 
     <footer>
-      Para Ahnang, con muchísimo amor y muchísimos píxeles ✨
+      Tetripil — para Pilar, con muchísimo amor y muchísimos píxeles ✨
     </footer>
   </main>
 
