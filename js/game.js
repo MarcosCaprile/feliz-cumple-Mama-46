@@ -61,15 +61,13 @@ const COLORS = {
 };
 
 /*
+ * Konfiguration der einzelnen Charakterbilder.
+ *
  * nativeCols und nativeRows beschreiben die ursprüngliche
- * Ausrichtung der jeweiligen PNG-Datei.
+ * Breite und Höhe der Pose in Tetris-Feldern.
  *
- * Bei der I-Pose ist Pilar im PNG aufrecht dargestellt.
- * Die ursprüngliche Tetris-I-Figur liegt jedoch waagerecht.
- * Deshalb erhält das PNG eine Grunddrehung von -90 Grad.
- *
- * Danach wird jede Drehung des Tetrominos zusätzlich
- * auf das Bild übertragen.
+ * baseQuarterTurns legt fest, ob das jeweilige PNG bereits
+ * vor der eigentlichen Spielrotation gedreht werden muss.
  */
 const POSE_CONFIG = {
   I: {
@@ -122,17 +120,15 @@ const POSE_CONFIG = {
   }
 };
 
+/* Canvas und Benutzeroberfläche */
+
 const gameCanvas = document.getElementById("gameCanvas");
 const gameCtx = gameCanvas.getContext("2d");
 
 const nextCanvas = document.getElementById("nextCanvas");
 const nextCtx = nextCanvas.getContext("2d");
 
-const holdCanvas = document.getElementById("holdCanvas");
-const holdCtx = holdCanvas.getContext("2d");
-
 const scoreNode = document.getElementById("score");
-const levelNode = document.getElementById("level");
 const linesNode = document.getElementById("lines");
 
 const overlay = document.getElementById("gameOverlay");
@@ -143,9 +139,10 @@ const overlayButton = document.getElementById("overlayButton");
 const pauseButton = document.getElementById("pauseButton");
 const restartButton = document.getElementById("restartButton");
 
-for (const context of [gameCtx, nextCtx, holdCtx]) {
-  context.imageSmoothingEnabled = false;
-}
+gameCtx.imageSmoothingEnabled = false;
+nextCtx.imageSmoothingEnabled = false;
+
+/* Spielzustand */
 
 const poseImages = {};
 
@@ -169,6 +166,8 @@ let animationId = null;
 
 let bag = [];
 
+/* Bilder laden */
+
 function loadPoseImages() {
   return Promise.all(
     TYPES.map((type) => {
@@ -184,7 +183,7 @@ function loadPoseImages() {
 
         image.onerror = () => {
           console.warn(
-            `No se pudo cargar la imagen de la pieza ${type}.`
+            `La imagen de la pieza ${type} no se pudo cargar.`
           );
 
           poseImages[type] = null;
@@ -195,6 +194,8 @@ function loadPoseImages() {
   );
 }
 
+/* Hilfsfunktionen */
+
 function createBoard() {
   return Array.from(
     { length: ROWS },
@@ -203,35 +204,19 @@ function createBoard() {
 }
 
 function copyMatrix(matrix) {
-  return matrix.map(
-    (row) => row.slice()
-  );
+  return matrix.map((row) => row.slice());
 }
 
 function rotateMatrixClockwise(matrix) {
-  return matrix[0].map(
-    (_, x) => {
-      return matrix
-        .map((row) => row[x])
-        .reverse();
-    }
-  );
-}
-
-function randomType() {
-  if (bag.length === 0) {
-    bag = shuffle(TYPES.slice());
-  }
-
-  return bag.pop();
+  return matrix[0].map((_, x) => {
+    return matrix
+      .map((row) => row[x])
+      .reverse();
+  });
 }
 
 function shuffle(items) {
-  for (
-    let i = items.length - 1;
-    i > 0;
-    i--
-  ) {
+  for (let i = items.length - 1; i > 0; i--) {
     const j = Math.floor(
       Math.random() * (i + 1)
     );
@@ -245,10 +230,16 @@ function shuffle(items) {
   return items;
 }
 
+function randomType() {
+  if (bag.length === 0) {
+    bag = shuffle(TYPES.slice());
+  }
+
+  return bag.pop();
+}
+
 function createPiece(type = randomType()) {
-  const matrix = copyMatrix(
-    SHAPES[type]
-  );
+  const matrix = copyMatrix(SHAPES[type]);
 
   return {
     type,
@@ -259,44 +250,6 @@ function createPiece(type = randomType()) {
     ),
     y: -1
   };
-}
-
-function collides(piece) {
-  for (
-    let y = 0;
-    y < piece.matrix.length;
-    y++
-  ) {
-    for (
-      let x = 0;
-      x < piece.matrix[y].length;
-      x++
-    ) {
-      if (!piece.matrix[y][x]) {
-        continue;
-      }
-
-      const boardX = piece.x + x;
-      const boardY = piece.y + y;
-
-      if (
-        boardX < 0 ||
-        boardX >= COLS ||
-        boardY >= ROWS
-      ) {
-        return true;
-      }
-
-      if (
-        boardY >= 0 &&
-        board[boardY][boardX]
-      ) {
-        return true;
-      }
-    }
-  }
-
-  return false;
 }
 
 function occupiedBounds(matrix) {
@@ -327,6 +280,46 @@ function occupiedBounds(matrix) {
     height: maxY - minY + 1
   };
 }
+
+function collides(piece) {
+  for (let y = 0; y < piece.matrix.length; y++) {
+    for (let x = 0; x < piece.matrix[y].length; x++) {
+      if (!piece.matrix[y][x]) {
+        continue;
+      }
+
+      const boardX = piece.x + x;
+      const boardY = piece.y + y;
+
+      if (
+        boardX < 0 ||
+        boardX >= COLS ||
+        boardY >= ROWS
+      ) {
+        return true;
+      }
+
+      if (
+        boardY >= 0 &&
+        board[boardY][boardX]
+      ) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+function canControl() {
+  return (
+    running &&
+    !paused &&
+    activePiece !== null
+  );
+}
+
+/* Bewegung */
 
 function move(dx) {
   if (!canControl()) {
@@ -402,16 +395,14 @@ function rotatePiece() {
   activePiece.matrix =
     rotateMatrixClockwise(originalMatrix);
 
-  /*
-   * Diese Zahl wird auch für die Drehung
-   * des PNG-Bildes verwendet.
-   */
   activePiece.rotation =
     (originalRotation + 1) % 4;
 
   /*
-   * Kleine Wall-Kicks ermöglichen Drehungen
-   * direkt neben Wänden und anderen Steinen.
+   * Wall-Kicks:
+   * Falls die Figur nach einer Drehung mit einer Wand
+   * oder anderen Steinen kollidiert, wird sie leicht
+   * verschoben.
    */
   const kicks = [
     [0, 0],
@@ -433,8 +424,8 @@ function rotatePiece() {
   }
 
   /*
-   * War keine Drehposition möglich,
-   * wird alles zurückgesetzt.
+   * Wenn keine Drehposition möglich ist,
+   * wird die Drehung zurückgesetzt.
    */
   activePiece.matrix = originalMatrix;
   activePiece.rotation = originalRotation;
@@ -442,6 +433,10 @@ function rotatePiece() {
   activePiece.y = originalY;
 }
 
+/*
+ * Die Speicherfunktion bleibt weiterhin verfügbar,
+ * obwohl der gespeicherte Block nicht mehr angezeigt wird.
+ */
 function holdPiece() {
   if (
     !canControl() ||
@@ -463,41 +458,36 @@ function holdPiece() {
 
   holdAvailable = false;
 
-  drawPreviews();
+  drawPreview();
   draw();
 }
 
+/* Steine festsetzen und Linien löschen */
+
 function lockPiece() {
-  activePiece.matrix.forEach(
-    (row, y) => {
-      row.forEach((value, x) => {
-        if (!value) {
-          return;
-        }
+  activePiece.matrix.forEach((row, y) => {
+    row.forEach((value, x) => {
+      if (!value) {
+        return;
+      }
 
-        const boardY =
-          activePiece.y + y;
+      const boardY = activePiece.y + y;
+      const boardX = activePiece.x + x;
 
-        const boardX =
-          activePiece.x + x;
-
-        if (boardY >= 0) {
-          board[boardY][boardX] =
-            activePiece.type;
-        }
-      });
-    }
-  );
+      if (boardY >= 0) {
+        board[boardY][boardX] =
+          activePiece.type;
+      }
+    });
+  });
 
   clearFullLines();
 
-  activePiece =
-    createPiece(nextType);
-
+  activePiece = createPiece(nextType);
   nextType = randomType();
   holdAvailable = true;
 
-  drawPreviews();
+  drawPreview();
 
   if (collides(activePiece)) {
     endGame();
@@ -507,14 +497,9 @@ function lockPiece() {
 function clearFullLines() {
   let removed = 0;
 
-  for (
-    let y = ROWS - 1;
-    y >= 0;
-    y--
-  ) {
+  for (let y = ROWS - 1; y >= 0; y--) {
     if (board[y].every(Boolean)) {
       board.splice(y, 1);
-
       board.unshift(
         Array(COLS).fill(null)
       );
@@ -528,14 +513,22 @@ function clearFullLines() {
     return;
   }
 
-  score +=
-    [0, 100, 300, 500, 800][removed] *
-    level;
+  const lineScores = [
+    0,
+    100,
+    300,
+    500,
+    800
+  ];
 
+  score += lineScores[removed] * level;
   lines += removed;
 
-  level =
-    Math.floor(lines / 10) + 1;
+  /*
+   * Das Level wird nicht mehr angezeigt,
+   * beeinflusst aber weiterhin die Geschwindigkeit.
+   */
+  level = Math.floor(lines / 10) + 1;
 
   updateStats();
 }
@@ -547,13 +540,7 @@ function fallDelay() {
   );
 }
 
-function canControl() {
-  return (
-    running &&
-    !paused &&
-    activePiece !== null
-  );
-}
+/* Spielfeld zeichnen */
 
 function drawBoardBackground() {
   gameCtx.fillStyle = "#090a14";
@@ -570,11 +557,7 @@ function drawBoardBackground() {
 
   gameCtx.lineWidth = 1;
 
-  for (
-    let x = 0;
-    x <= COLS;
-    x++
-  ) {
+  for (let x = 0; x <= COLS; x++) {
     gameCtx.beginPath();
 
     gameCtx.moveTo(
@@ -590,11 +573,7 @@ function drawBoardBackground() {
     gameCtx.stroke();
   }
 
-  for (
-    let y = 0;
-    y <= ROWS;
-    y++
-  ) {
+  for (let y = 0; y <= ROWS; y++) {
     gameCtx.beginPath();
 
     gameCtx.moveTo(
@@ -696,8 +675,8 @@ function drawPoseImage(
     config.nativeRows * cellSize;
 
   /*
-   * Das ursprüngliche Seitenverhältnis
-   * des PNG-Bildes bleibt erhalten.
+   * Das Bild wird proportional skaliert,
+   * damit Pilar nicht gestreckt wird.
    */
   const containScale = Math.min(
     targetWidth / image.naturalWidth,
@@ -714,10 +693,6 @@ function drawPoseImage(
     containScale *
     config.scale;
 
-  /*
-   * Grundausrichtung des PNG-Bildes
-   * plus die aktuelle Drehung des Tetrominos.
-   */
   const quarterTurns =
     config.baseQuarterTurns +
     rotation;
@@ -784,34 +759,32 @@ function drawPiece(
     ghost = false
   } = {}
 ) {
-  piece.matrix.forEach(
-    (row, y) => {
-      row.forEach((value, x) => {
-        if (!value) {
-          return;
-        }
+  piece.matrix.forEach((row, y) => {
+    row.forEach((value, x) => {
+      if (!value) {
+        return;
+      }
 
-        const boardX =
-          piece.x + x;
+      const boardX =
+        piece.x + x;
 
-        const boardY =
-          piece.y + y;
+      const boardY =
+        piece.y + y;
 
-        if (boardY < 0) {
-          return;
-        }
+      if (boardY < 0) {
+        return;
+      }
 
-        drawBlock(
-          gameCtx,
-          boardX * CELL,
-          boardY * CELL,
-          CELL,
-          piece.type,
-          ghost ? 0.16 : 0.78
-        );
-      });
-    }
-  );
+      drawBlock(
+        gameCtx,
+        boardX * CELL,
+        boardY * CELL,
+        CELL,
+        piece.type,
+        ghost ? 0.16 : 0.78
+      );
+    });
+  });
 
   if (!ghost) {
     drawActivePose(piece);
@@ -821,16 +794,8 @@ function drawPiece(
 function draw() {
   drawBoardBackground();
 
-  for (
-    let y = 0;
-    y < ROWS;
-    y++
-  ) {
-    for (
-      let x = 0;
-      x < COLS;
-      x++
-    ) {
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
       const type = board[y][x];
 
       if (type) {
@@ -874,23 +839,21 @@ function draw() {
   drawPiece(activePiece);
 }
 
-function drawPreview(
-  context,
-  canvas,
-  type
-) {
-  context.clearRect(
+/* Vorschau des nächsten Blocks */
+
+function drawPreview() {
+  nextCtx.clearRect(
     0,
     0,
-    canvas.width,
-    canvas.height
+    nextCanvas.width,
+    nextCanvas.height
   );
 
-  if (!type) {
+  if (!nextType) {
     return;
   }
 
-  const matrix = SHAPES[type];
+  const matrix = SHAPES[nextType];
   const bounds =
     occupiedBounds(matrix);
 
@@ -900,12 +863,12 @@ function drawPreview(
     34,
 
     Math.floor(
-      (canvas.width - padding * 2) /
+      (nextCanvas.width - padding * 2) /
       bounds.width
     ),
 
     Math.floor(
-      (canvas.height - padding * 2) /
+      (nextCanvas.height - padding * 2) /
       bounds.height
     )
   );
@@ -917,59 +880,43 @@ function drawPreview(
     bounds.height * cellSize;
 
   const offsetX =
-    (canvas.width - totalWidth) / 2;
+    (nextCanvas.width - totalWidth) / 2;
 
   const offsetY =
-    (canvas.height - totalHeight) / 2;
+    (nextCanvas.height - totalHeight) / 2;
 
-  matrix.forEach(
-    (row, y) => {
-      row.forEach((value, x) => {
-        if (!value) {
-          return;
-        }
+  matrix.forEach((row, y) => {
+    row.forEach((value, x) => {
+      if (!value) {
+        return;
+      }
 
-        drawBlock(
-          context,
+      drawBlock(
+        nextCtx,
 
-          offsetX +
+        offsetX +
           (x - bounds.minX) *
           cellSize,
 
-          offsetY +
+        offsetY +
           (y - bounds.minY) *
           cellSize,
 
-          cellSize,
-          type,
-          0.78
-        );
-      });
-    }
-  );
+        cellSize,
+        nextType,
+        0.78
+      );
+    });
+  });
 
   drawPoseImage(
-    context,
-    type,
+    nextCtx,
+    nextType,
     0,
     offsetX + totalWidth / 2,
     offsetY + totalHeight / 2,
     cellSize,
     1
-  );
-}
-
-function drawPreviews() {
-  drawPreview(
-    nextCtx,
-    nextCanvas,
-    nextType
-  );
-
-  drawPreview(
-    holdCtx,
-    holdCanvas,
-    heldType
   );
 }
 
@@ -995,12 +942,11 @@ function lighten(hex, amount) {
   return `rgb(${red}, ${green}, ${blue})`;
 }
 
+/* Benutzeroberfläche */
+
 function updateStats() {
   scoreNode.textContent =
     score.toLocaleString("es-ES");
-
-  levelNode.textContent =
-    String(level);
 
   linesNode.textContent =
     String(lines);
@@ -1011,14 +957,9 @@ function showOverlay(
   message,
   buttonText
 ) {
-  overlayTitle.textContent =
-    title;
-
-  overlayMessage.textContent =
-    message;
-
-  overlayButton.textContent =
-    buttonText;
+  overlayTitle.textContent = title;
+  overlayMessage.textContent = message;
+  overlayButton.textContent = buttonText;
 
   overlay.classList.add(
     "is-visible"
@@ -1030,6 +971,8 @@ function hideOverlay() {
     "is-visible"
   );
 }
+
+/* Spiel starten, pausieren und beenden */
 
 function startGame() {
   if (animationId !== null) {
@@ -1062,7 +1005,7 @@ function startGame() {
   lastTime = performance.now();
 
   updateStats();
-  drawPreviews();
+  drawPreview();
   hideOverlay();
   draw();
 
@@ -1099,9 +1042,7 @@ function togglePause() {
   if (paused) {
     showOverlay(
       "Pausa",
-
       "Descansa un momento y continúa cuando quieras",
-
       "Continuar"
     );
   } else {
@@ -1141,6 +1082,8 @@ function gameLoop(time) {
     );
 }
 
+/* Tastatursteuerung */
+
 document.addEventListener(
   "keydown",
   (event) => {
@@ -1160,9 +1103,7 @@ document.addEventListener(
       event.preventDefault();
     }
 
-    if (
-      event.key === "ArrowLeft"
-    ) {
+    if (event.key === "ArrowLeft") {
       move(-1);
     } else if (
       event.key === "ArrowRight"
@@ -1194,6 +1135,8 @@ document.addEventListener(
   }
 );
 
+/* Mobile Steuerung */
+
 document
   .querySelectorAll("[data-action]")
   .forEach((button) => {
@@ -1212,9 +1155,7 @@ document
         };
 
         const action =
-          actions[
-            button.dataset.action
-          ];
+          actions[button.dataset.action];
 
         if (action) {
           action();
@@ -1222,6 +1163,8 @@ document
       }
     );
   });
+
+/* Schaltflächen */
 
 overlayButton.addEventListener(
   "click",
@@ -1244,10 +1187,11 @@ pauseButton.addEventListener(
   togglePause
 );
 
+/* Initialisierung */
+
 loadPoseImages().then(() => {
-  activePiece =
-    createPiece("T");
+  activePiece = createPiece("T");
 
   draw();
-  drawPreviews();
+  drawPreview();
 });
