@@ -44,6 +44,11 @@ body {
     );
 }
 
+button,
+canvas {
+  -webkit-tap-highlight-color: transparent;
+}
+
 .background {
   position: fixed;
   inset: 0;
@@ -52,9 +57,21 @@ body {
   opacity: 0.5;
 
   background-image:
-    radial-gradient(circle, #ffe266 0 3px, transparent 4px),
-    radial-gradient(circle, #5cdcff 0 3px, transparent 4px),
-    radial-gradient(circle, #ff79ac 0 3px, transparent 4px);
+    radial-gradient(
+      circle,
+      #ffe266 0 3px,
+      transparent 4px
+    ),
+    radial-gradient(
+      circle,
+      #5cdcff 0 3px,
+      transparent 4px
+    ),
+    radial-gradient(
+      circle,
+      #ff79ac 0 3px,
+      transparent 4px
+    );
 
   background-size:
     90px 90px,
@@ -99,7 +116,8 @@ body {
   border: 4px solid var(--yellow);
   border-radius: 20px;
 
-  box-shadow: 0 8px 0 rgba(45, 14, 70, 0.55);
+  box-shadow:
+    0 8px 0 rgba(45, 14, 70, 0.55);
 }
 
 .overline {
@@ -120,7 +138,8 @@ body {
   line-height: 0.9;
   letter-spacing: -0.04em;
 
-  text-shadow: 0 6px 0 #43145f;
+  text-shadow:
+    0 6px 0 #43145f;
 }
 
 .subtitle {
@@ -160,7 +179,8 @@ body {
   border: 2px solid var(--border);
   border-radius: 14px;
 
-  box-shadow: 0 8px 0 rgba(42, 14, 67, 0.45);
+  box-shadow:
+    0 8px 0 rgba(42, 14, 67, 0.45);
 }
 
 .info-card {
@@ -199,14 +219,13 @@ body {
   image-rendering: pixelated;
 }
 
-.board-column {
+.board-column,
+.board-frame {
   width: 320px;
 }
 
 .board-frame {
   position: relative;
-
-  width: 320px;
   height: 640px;
 }
 
@@ -237,7 +256,9 @@ body {
 
   padding: 18px;
 
-  background: rgba(10, 5, 20, 0.68);
+  background:
+    rgba(10, 5, 20, 0.68);
+
   border-radius: 8px;
 }
 
@@ -261,7 +282,8 @@ body {
   border: 2px solid #d2acff;
   border-radius: 18px;
 
-  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.38);
+  box-shadow:
+    0 14px 35px rgba(0, 0, 0, 0.38);
 }
 
 .overlay-icon {
@@ -292,6 +314,11 @@ body {
   touch-action: manipulation;
 }
 
+.button:active,
+.touch-controls button:active {
+  transform: translateY(2px);
+}
+
 .primary {
   color: #482050;
 
@@ -301,14 +328,16 @@ body {
       #ffb62f
     );
 
-  box-shadow: 0 5px 0 #bd6b21;
+  box-shadow:
+    0 5px 0 #bd6b21;
 }
 
 .secondary {
   color: #4e2176;
-
   background: #f3eaff;
-  box-shadow: 0 5px 0 #8d6aae;
+
+  box-shadow:
+    0 5px 0 #8d6aae;
 }
 
 .controls-card p {
@@ -336,7 +365,8 @@ body {
   background: #f5ebff;
   border-radius: 6px;
 
-  box-shadow: 0 2px 0 #9b79ba;
+  box-shadow:
+    0 2px 0 #9b79ba;
 }
 
 .touch-controls {
@@ -355,10 +385,12 @@ body {
   font-weight: 950;
 
   background: #f1e5ff;
+
   border: 0;
   border-radius: 11px;
 
-  box-shadow: 0 4px 0 #8f6bae;
+  box-shadow:
+    0 4px 0 #8f6bae;
 
   touch-action: manipulation;
 }
