@@ -15,9 +15,10 @@
     content="Tetripil, un Tetris personalizado para el cumpleaños de Pilar"
   >
 
-  <title>Tetripil | Feliz cumpleaños, Mamá</title>
+  <title>Tetripil | Feliz cumpleaños, mamá</title>
 
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=5">
+  <script src="js/game.js?v=5" defer></script>
 </head>
 
 <body>
@@ -25,28 +26,20 @@
 
   <main class="page-shell">
     <header class="hero">
-      <img
-        class="hero-avatar"
-        src="assets/pilar.png"
-        alt="Pilar en estilo pixel art"
-      >
+      <p class="overline">
+        Un regalo hecho especialmente para ti
+      </p>
 
-      <div>
-        <p class="overline">
-          Un regalo hecho especial para ti
-        </p>
+      <h1>Tetripil</h1>
 
-        <h1>Tetripil</h1>
-
-        <p class="subtitle">
-          ¡Feliz cumpleaños, Mamá! 💜
-        </p>
-      </div>
+      <p class="subtitle">
+        ¡Feliz cumpleaños, mamá! 💜
+      </p>
     </header>
 
     <section class="game-layout">
       <aside class="side-panel left-panel">
-        <article class="info-card score-card">
+        <article class="info-card">
           <span>Puntos</span>
           <strong id="score">0</strong>
         </article>
@@ -82,9 +75,12 @@
               <span class="overlay-icon">✦</span>
 
               <h2 id="overlayTitle">
-                ¡Feliz cumpleaños, Mamá!
+                ¡Feliz cumpleaños, mamá!
               </h2>
 
+              <p id="overlayMessage">
+                Completa líneas con las poses pixeladas de Pilar
+              </p>
 
               <button
                 id="overlayButton"
@@ -140,19 +136,11 @@
           >
             ⤓
           </button>
-
-          <button
-            type="button"
-            data-action="hold"
-            aria-label="Guardar pieza"
-          >
-            G
-          </button>
         </div>
       </div>
 
       <aside class="side-panel right-panel">
-        <article class="preview-card next-card">
+        <article class="preview-card">
           <h2>Siguiente</h2>
 
           <canvas
@@ -174,10 +162,8 @@
     </section>
 
     <footer>
-      Tetripil
+      Tetripil — para Pilar, con muchísimo amor y muchísimos píxeles ✨
     </footer>
   </main>
-
-  <script src="js/game.js"></script>
 </body>
 </html>
