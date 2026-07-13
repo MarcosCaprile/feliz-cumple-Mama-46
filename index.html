@@ -1,169 +1,169 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
-  <meta name="theme-color" content="#7c3aed">
-
-  <meta
-    name="description"
-    content="Tetripil, un Tetris personalizado para el cumpleaños de Pilar"
-  >
-
-  <title>Tetripil | Feliz cumpleaños, mamá</title>
-
-  <link rel="stylesheet" href="styles.css?v=5">
-  <script src="js/game.js?v=5" defer></script>
-</head>
-
-<body>
-  <div class="background" aria-hidden="true"></div>
-
-  <main class="page-shell">
-    <header class="hero">
-      <p class="overline">
-        Un regalo hecho especialmente para ti
-      </p>
-
-      <h1>Tetripil</h1>
-
-      <p class="subtitle">
-        ¡Feliz cumpleaños, mamá! 💜
-      </p>
-    </header>
-
-    <section class="game-layout">
-      <aside class="side-panel left-panel">
-        <article class="info-card">
-          <span>Puntos</span>
-          <strong id="score">0</strong>
-        </article>
-
-        <article class="info-card">
-          <span>Líneas</span>
-          <strong id="lines">0</strong>
-        </article>
-
-        <button
-          id="pauseButton"
-          class="button secondary"
-          type="button"
-        >
-          Pausa
-        </button>
-      </aside>
-
-      <div class="board-column">
-        <div class="board-frame">
-          <canvas
-            id="gameCanvas"
-            width="320"
-            height="640"
-            aria-label="Tablero de Tetripil"
-          ></canvas>
-
-          <div
-            id="gameOverlay"
-            class="overlay is-visible"
+  <head>
+    <meta charset="UTF-8">
+  
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    >
+  
+    <meta name="theme-color" content="#7c3aed">
+  
+    <meta
+      name="description"
+      content="Tetripil, un Tetris personalizado para el cumpleaños de Pilar"
+    >
+  
+    <title>Tetripil | Feliz cumpleaños, mamá</title>
+  
+    <link rel="stylesheet" href="styles.css?v=5">
+    <script src="js/game.js?v=5" defer></script>
+  </head>
+  
+  <body>
+    <div class="background" aria-hidden="true"></div>
+  
+    <main class="page-shell">
+      <header class="hero">
+        <p class="overline">
+          Un regalo hecho especialmente para ti
+        </p>
+  
+        <h1>Tetripil</h1>
+  
+        <p class="subtitle">
+          ¡Feliz cumpleaños, mamá! 💜
+        </p>
+      </header>
+  
+      <section class="game-layout">
+        <aside class="side-panel left-panel">
+          <article class="info-card">
+            <span>Puntos</span>
+            <strong id="score">0</strong>
+          </article>
+  
+          <article class="info-card">
+            <span>Líneas</span>
+            <strong id="lines">0</strong>
+          </article>
+  
+          <button
+            id="pauseButton"
+            class="button secondary"
+            type="button"
           >
-            <div class="overlay-card">
-              <span class="overlay-icon">✦</span>
-
-              <h2 id="overlayTitle">
-                ¡Feliz cumpleaños, mamá!
-              </h2>
-
-              <p id="overlayMessage">
-                Completa líneas con las poses pixeladas de Pilar
-              </p>
-
-              <button
-                id="overlayButton"
-                class="button primary"
-                type="button"
-              >
-                Empezar
-              </button>
+            Pausa
+          </button>
+        </aside>
+  
+        <div class="board-column">
+          <div class="board-frame">
+            <canvas
+              id="gameCanvas"
+              width="320"
+              height="640"
+              aria-label="Tablero de Tetripil"
+            ></canvas>
+  
+            <div
+              id="gameOverlay"
+              class="overlay is-visible"
+            >
+              <div class="overlay-card">
+                <span class="overlay-icon">✦</span>
+  
+                <h2 id="overlayTitle">
+                  ¡Feliz cumpleaños, mamá!
+                </h2>
+  
+                <p id="overlayMessage">
+                  Completa líneas con las poses pixeladas de Pilar
+                </p>
+  
+                <button
+                  id="overlayButton"
+                  class="button primary"
+                  type="button"
+                >
+                  Empezar
+                </button>
+              </div>
             </div>
           </div>
+  
+          <div
+            class="touch-controls"
+            aria-label="Controles táctiles"
+          >
+            <button
+              type="button"
+              data-action="left"
+              aria-label="Mover a la izquierda"
+            >
+              ◀
+            </button>
+  
+            <button
+              type="button"
+              data-action="rotate"
+              aria-label="Girar"
+            >
+              ⟳
+            </button>
+  
+            <button
+              type="button"
+              data-action="right"
+              aria-label="Mover a la derecha"
+            >
+              ▶
+            </button>
+  
+            <button
+              type="button"
+              data-action="down"
+              aria-label="Bajar"
+            >
+              ▼
+            </button>
+  
+            <button
+              type="button"
+              data-action="drop"
+              aria-label="Caída rápida"
+            >
+              ⤓
+            </button>
+          </div>
         </div>
-
-        <div
-          class="touch-controls"
-          aria-label="Controles táctiles"
-        >
+  
+        <aside class="side-panel right-panel">
+          <article class="preview-card">
+            <h2>Siguiente</h2>
+  
+            <canvas
+              id="nextCanvas"
+              width="180"
+              height="180"
+              aria-label="Siguiente pieza"
+            ></canvas>
+          </article>
+  
           <button
+            id="restartButton"
+            class="button secondary"
             type="button"
-            data-action="left"
-            aria-label="Mover a la izquierda"
           >
-            ◀
+            Reiniciar
           </button>
-
-          <button
-            type="button"
-            data-action="rotate"
-            aria-label="Girar"
-          >
-            ⟳
-          </button>
-
-          <button
-            type="button"
-            data-action="right"
-            aria-label="Mover a la derecha"
-          >
-            ▶
-          </button>
-
-          <button
-            type="button"
-            data-action="down"
-            aria-label="Bajar"
-          >
-            ▼
-          </button>
-
-          <button
-            type="button"
-            data-action="drop"
-            aria-label="Caída rápida"
-          >
-            ⤓
-          </button>
-        </div>
-      </div>
-
-      <aside class="side-panel right-panel">
-        <article class="preview-card">
-          <h2>Siguiente</h2>
-
-          <canvas
-            id="nextCanvas"
-            width="180"
-            height="180"
-            aria-label="Siguiente pieza"
-          ></canvas>
-        </article>
-
-        <button
-          id="restartButton"
-          class="button secondary"
-          type="button"
-        >
-          Reiniciar
-        </button>
-      </aside>
-    </section>
-
-    <footer>
-      Tetripil — para Pilar, con muchísimo amor y muchísimos píxeles ✨
-    </footer>
-  </main>
-</body>
+        </aside>
+      </section>
+  
+      <footer>
+        Tetripil
+      </footer>
+    </main>
+  </body>
 </html>
