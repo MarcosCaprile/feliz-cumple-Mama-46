@@ -2,9 +2,18 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
   <meta name="theme-color" content="#7c3aed">
-  <meta name="description" content="Tetripil, un Tetris personalizado para el cumpleaños de Pilar">
+
+  <meta
+    name="description"
+    content="Tetripil, un Tetris personalizado para el cumpleaños de Pilar"
+  >
 
   <title>Tetripil | Feliz cumpleaños, mamá</title>
 
@@ -23,9 +32,15 @@
       >
 
       <div>
-        <p class="overline">Un regalo hecho especialmente para ti</p>
+        <p class="overline">
+          Un regalo hecho especialmente para ti
+        </p>
+
         <h1>Tetripil</h1>
-        <p class="subtitle">¡Feliz cumpleaños, mamá! 💜</p>
+
+        <p class="subtitle">
+          ¡Feliz cumpleaños, mamá! 💜
+        </p>
       </div>
     </header>
 
@@ -48,6 +63,7 @@
 
         <article class="preview-card">
           <h2>Guardada</h2>
+
           <canvas
             id="holdCanvas"
             width="180"
@@ -56,7 +72,11 @@
           ></canvas>
         </article>
 
-        <button id="pauseButton" class="button secondary" type="button">
+        <button
+          id="pauseButton"
+          class="button secondary"
+          type="button"
+        >
           Pausa
         </button>
       </aside>
@@ -70,30 +90,83 @@
             aria-label="Tablero de Tetripil"
           ></canvas>
 
-          <div id="gameOverlay" class="overlay is-visible">
+          <div
+            id="gameOverlay"
+            class="overlay is-visible"
+          >
             <div class="overlay-card">
               <span class="overlay-icon">✦</span>
 
-              <h2 id="overlayTitle">¡Feliz cumpleaños, mamá!</h2>
+              <h2 id="overlayTitle">
+                ¡Feliz cumpleaños, mamá!
+              </h2>
 
               <p id="overlayMessage">
                 Completa líneas con las poses pixeladas de Pilar
               </p>
 
-              <button id="overlayButton" class="button primary" type="button">
+              <button
+                id="overlayButton"
+                class="button primary"
+                type="button"
+              >
                 Empezar
               </button>
             </div>
           </div>
         </div>
 
-        <div class="touch-controls" aria-label="Controles táctiles">
-          <button type="button" data-action="left" aria-label="Mover a la izquierda">◀</button>
-          <button type="button" data-action="rotate" aria-label="Girar">⟳</button>
-          <button type="button" data-action="right" aria-label="Mover a la derecha">▶</button>
-          <button type="button" data-action="down" aria-label="Bajar">▼</button>
-          <button type="button" data-action="drop" aria-label="Caída rápida">⤓</button>
-          <button type="button" data-action="hold" aria-label="Guardar pieza">G</button>
+        <div
+          class="touch-controls"
+          aria-label="Controles táctiles"
+        >
+          <button
+            type="button"
+            data-action="left"
+            aria-label="Mover a la izquierda"
+          >
+            ◀
+          </button>
+
+          <button
+            type="button"
+            data-action="rotate"
+            aria-label="Girar"
+          >
+            ⟳
+          </button>
+
+          <button
+            type="button"
+            data-action="right"
+            aria-label="Mover a la derecha"
+          >
+            ▶
+          </button>
+
+          <button
+            type="button"
+            data-action="down"
+            aria-label="Bajar"
+          >
+            ▼
+          </button>
+
+          <button
+            type="button"
+            data-action="drop"
+            aria-label="Caída rápida"
+          >
+            ⤓
+          </button>
+
+          <button
+            type="button"
+            data-action="hold"
+            aria-label="Guardar pieza"
+          >
+            G
+          </button>
         </div>
       </div>
 
@@ -112,15 +185,43 @@
         <article class="controls-card">
           <h2>Controles</h2>
 
-          <p><kbd>←</kbd><kbd>→</kbd><span>Mover</span></p>
-          <p><kbd>↑</kbd><span>Girar</span></p>
-          <p><kbd>↓</kbd><span>Bajar</span></p>
-          <p><kbd>Espacio</kbd><span>Caída rápida</span></p>
-          <p><kbd>C</kbd><span>Guardar</span></p>
-          <p><kbd>P</kbd><span>Pausa</span></p>
+          <p>
+            <kbd>←</kbd>
+            <kbd>→</kbd>
+            <span>Mover</span>
+          </p>
+
+          <p>
+            <kbd>↑</kbd>
+            <span>Girar</span>
+          </p>
+
+          <p>
+            <kbd>↓</kbd>
+            <span>Bajar</span>
+          </p>
+
+          <p>
+            <kbd>Espacio</kbd>
+            <span>Caída rápida</span>
+          </p>
+
+          <p>
+            <kbd>C</kbd>
+            <span>Guardar</span>
+          </p>
+
+          <p>
+            <kbd>P</kbd>
+            <span>Pausa</span>
+          </p>
         </article>
 
-        <button id="restartButton" class="button secondary" type="button">
+        <button
+          id="restartButton"
+          class="button secondary"
+          type="button"
+        >
           Reiniciar
         </button>
       </aside>
