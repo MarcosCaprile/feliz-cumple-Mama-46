@@ -60,6 +60,68 @@ const COLORS = {
   Z: "#ff6784"
 };
 
+/*
+ * nativeCols und nativeRows beschreiben die ursprüngliche
+ * Ausrichtung der jeweiligen PNG-Datei.
+ *
+ * Bei der I-Pose ist Pilar im PNG aufrecht dargestellt.
+ * Die ursprüngliche Tetris-I-Figur liegt jedoch waagerecht.
+ * Deshalb erhält das PNG eine Grunddrehung von -90 Grad.
+ *
+ * Danach wird jede Drehung des Tetrominos zusätzlich
+ * auf das Bild übertragen.
+ */
+const POSE_CONFIG = {
+  I: {
+    nativeCols: 1,
+    nativeRows: 4,
+    baseQuarterTurns: -1,
+    scale: 1.42
+  },
+
+  O: {
+    nativeCols: 2,
+    nativeRows: 2,
+    baseQuarterTurns: 0,
+    scale: 1.02
+  },
+
+  T: {
+    nativeCols: 3,
+    nativeRows: 2,
+    baseQuarterTurns: 0,
+    scale: 1.18
+  },
+
+  J: {
+    nativeCols: 3,
+    nativeRows: 2,
+    baseQuarterTurns: 0,
+    scale: 1.16
+  },
+
+  L: {
+    nativeCols: 3,
+    nativeRows: 2,
+    baseQuarterTurns: 0,
+    scale: 1.16
+  },
+
+  S: {
+    nativeCols: 3,
+    nativeRows: 2,
+    baseQuarterTurns: 0,
+    scale: 1.15
+  },
+
+  Z: {
+    nativeCols: 3,
+    nativeRows: 2,
+    baseQuarterTurns: 0,
+    scale: 1.15
+  }
+};
+
 const gameCanvas = document.getElementById("gameCanvas");
 const gameCtx = gameCanvas.getContext("2d");
 
@@ -78,6 +140,9 @@ const overlayTitle = document.getElementById("overlayTitle");
 const overlayMessage = document.getElementById("overlayMessage");
 const overlayButton = document.getElementById("overlayButton");
 
+const pauseButton = document.getElementById("pauseButton");
+const restartButton = document.getElementById("restartButton");
+
 for (const context of [gameCtx, nextCtx, holdCtx]) {
   context.imageSmoothingEnabled = false;
 }
@@ -86,9 +151,9 @@ const poseImages = {};
 
 let board = createBoard();
 let activePiece = null;
-let nextType = "L";
-let heldType = null;
 
+let nextType = "T";
+let heldType = null;
 let holdAvailable = true;
 
 let score = 0;
@@ -104,7 +169,7 @@ let animationId = null;
 
 let bag = [];
 
-function loadImages() {
+function loadPoseImages() {
   return Promise.all(
     TYPES.map((type) => {
       return new Promise((resolve) => {
@@ -118,6 +183,10 @@ function loadImages() {
         };
 
         image.onerror = () => {
+          console.warn(
+            `No se pudo cargar la imagen de la pieza ${type}.`
+          );
+
           poseImages[type] = null;
           resolve();
         };
@@ -134,39 +203,75 @@ function createBoard() {
 }
 
 function copyMatrix(matrix) {
-  return matrix.map((row) => row.slice());
+  return matrix.map(
+    (row) => row.slice()
+  );
 }
 
-function rotateMatrix(matrix) {
-  return matrix[0].map((_, x) => {
-    return matrix.map((row) => row[x]).reverse();
-  });
+function rotateMatrixClockwise(matrix) {
+  return matrix[0].map(
+    (_, x) => {
+      return matrix
+        .map((row) => row[x])
+        .reverse();
+    }
+  );
 }
 
 function randomType() {
-  if (!bag.length) {
-    bag = TYPES
-      .slice()
-      .sort(() => Math.random() - 0.5);
+  if (bag.length === 0) {
+    bag = shuffle(TYPES.slice());
   }
 
   return bag.pop();
 }
 
+function shuffle(items) {
+  for (
+    let i = items.length - 1;
+    i > 0;
+    i--
+  ) {
+    const j = Math.floor(
+      Math.random() * (i + 1)
+    );
+
+    [items[i], items[j]] = [
+      items[j],
+      items[i]
+    ];
+  }
+
+  return items;
+}
+
 function createPiece(type = randomType()) {
-  const matrix = copyMatrix(SHAPES[type]);
+  const matrix = copyMatrix(
+    SHAPES[type]
+  );
 
   return {
     type,
     matrix,
-    x: Math.floor((COLS - matrix[0].length) / 2),
+    rotation: 0,
+    x: Math.floor(
+      (COLS - matrix[0].length) / 2
+    ),
     y: -1
   };
 }
 
 function collides(piece) {
-  for (let y = 0; y < piece.matrix.length; y++) {
-    for (let x = 0; x < piece.matrix[y].length; x++) {
+  for (
+    let y = 0;
+    y < piece.matrix.length;
+    y++
+  ) {
+    for (
+      let x = 0;
+      x < piece.matrix[y].length;
+      x++
+    ) {
       if (!piece.matrix[y][x]) {
         continue;
       }
@@ -174,11 +279,18 @@ function collides(piece) {
       const boardX = piece.x + x;
       const boardY = piece.y + y;
 
-      if (boardX < 0 || boardX >= COLS || boardY >= ROWS) {
+      if (
+        boardX < 0 ||
+        boardX >= COLS ||
+        boardY >= ROWS
+      ) {
         return true;
       }
 
-      if (boardY >= 0 && board[boardY][boardX]) {
+      if (
+        boardY >= 0 &&
+        board[boardY][boardX]
+      ) {
         return true;
       }
     }
@@ -188,10 +300,10 @@ function collides(piece) {
 }
 
 function occupiedBounds(matrix) {
-  let minX = 99;
-  let minY = 99;
-  let maxX = -1;
-  let maxY = -1;
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
 
   matrix.forEach((row, y) => {
     row.forEach((value, x) => {
@@ -216,60 +328,8 @@ function occupiedBounds(matrix) {
   };
 }
 
-function lockPiece() {
-  activePiece.matrix.forEach((row, y) => {
-    row.forEach((value, x) => {
-      if (!value) {
-        return;
-      }
-
-      const boardY = activePiece.y + y;
-      const boardX = activePiece.x + x;
-
-      if (boardY >= 0) {
-        board[boardY][boardX] = activePiece.type;
-      }
-    });
-  });
-
-  clearFullLines();
-
-  activePiece = createPiece(nextType);
-  nextType = randomType();
-
-  holdAvailable = true;
-
-  drawPreviews();
-
-  if (collides(activePiece)) {
-    endGame();
-  }
-}
-
-function clearFullLines() {
-  let removed = 0;
-
-  for (let y = ROWS - 1; y >= 0; y--) {
-    if (board[y].every(Boolean)) {
-      board.splice(y, 1);
-      board.unshift(Array(COLS).fill(null));
-
-      removed++;
-      y++;
-    }
-  }
-
-  if (removed) {
-    score += [0, 100, 300, 500, 800][removed] * level;
-    lines += removed;
-    level = Math.floor(lines / 10) + 1;
-
-    updateStats();
-  }
-}
-
 function move(dx) {
-  if (!running || paused) {
+  if (!canControl()) {
     return;
   }
 
@@ -282,17 +342,17 @@ function move(dx) {
   draw();
 }
 
-function softDrop() {
-  if (!running || paused) {
+function stepDown(manual = false) {
+  if (!canControl()) {
     return;
   }
 
-  activePiece.y++;
+  activePiece.y += 1;
 
   if (collides(activePiece)) {
-    activePiece.y--;
+    activePiece.y -= 1;
     lockPiece();
-  } else {
+  } else if (manual) {
     score += 1;
     updateStats();
   }
@@ -303,7 +363,7 @@ function softDrop() {
 }
 
 function hardDrop() {
-  if (!running || paused) {
+  if (!canControl()) {
     return;
   }
 
@@ -315,8 +375,8 @@ function hardDrop() {
       y: activePiece.y + 1
     })
   ) {
-    activePiece.y++;
-    distance++;
+    activePiece.y += 1;
+    distance += 1;
   }
 
   score += distance * 2;
@@ -327,17 +387,44 @@ function hardDrop() {
 }
 
 function rotatePiece() {
-  if (!running || paused) {
+  if (
+    !canControl() ||
+    activePiece.type === "O"
+  ) {
     return;
   }
 
-  const oldMatrix = activePiece.matrix;
-  const oldX = activePiece.x;
+  const originalMatrix = activePiece.matrix;
+  const originalX = activePiece.x;
+  const originalY = activePiece.y;
+  const originalRotation = activePiece.rotation;
 
-  activePiece.matrix = rotateMatrix(activePiece.matrix);
+  activePiece.matrix =
+    rotateMatrixClockwise(originalMatrix);
 
-  for (const offset of [0, -1, 1, -2, 2]) {
-    activePiece.x = oldX + offset;
+  /*
+   * Diese Zahl wird auch für die Drehung
+   * des PNG-Bildes verwendet.
+   */
+  activePiece.rotation =
+    (originalRotation + 1) % 4;
+
+  /*
+   * Kleine Wall-Kicks ermöglichen Drehungen
+   * direkt neben Wänden und anderen Steinen.
+   */
+  const kicks = [
+    [0, 0],
+    [-1, 0],
+    [1, 0],
+    [-2, 0],
+    [2, 0],
+    [0, -1]
+  ];
+
+  for (const [dx, dy] of kicks) {
+    activePiece.x = originalX + dx;
+    activePiece.y = originalY + dy;
 
     if (!collides(activePiece)) {
       draw();
@@ -345,12 +432,21 @@ function rotatePiece() {
     }
   }
 
-  activePiece.matrix = oldMatrix;
-  activePiece.x = oldX;
+  /*
+   * War keine Drehposition möglich,
+   * wird alles zurückgesetzt.
+   */
+  activePiece.matrix = originalMatrix;
+  activePiece.rotation = originalRotation;
+  activePiece.x = originalX;
+  activePiece.y = originalY;
 }
 
 function holdPiece() {
-  if (!running || paused || !holdAvailable) {
+  if (
+    !canControl() ||
+    !holdAvailable
+  ) {
     return;
   }
 
@@ -371,15 +467,97 @@ function holdPiece() {
   draw();
 }
 
+function lockPiece() {
+  activePiece.matrix.forEach(
+    (row, y) => {
+      row.forEach((value, x) => {
+        if (!value) {
+          return;
+        }
+
+        const boardY =
+          activePiece.y + y;
+
+        const boardX =
+          activePiece.x + x;
+
+        if (boardY >= 0) {
+          board[boardY][boardX] =
+            activePiece.type;
+        }
+      });
+    }
+  );
+
+  clearFullLines();
+
+  activePiece =
+    createPiece(nextType);
+
+  nextType = randomType();
+  holdAvailable = true;
+
+  drawPreviews();
+
+  if (collides(activePiece)) {
+    endGame();
+  }
+}
+
+function clearFullLines() {
+  let removed = 0;
+
+  for (
+    let y = ROWS - 1;
+    y >= 0;
+    y--
+  ) {
+    if (board[y].every(Boolean)) {
+      board.splice(y, 1);
+
+      board.unshift(
+        Array(COLS).fill(null)
+      );
+
+      removed += 1;
+      y += 1;
+    }
+  }
+
+  if (removed === 0) {
+    return;
+  }
+
+  score +=
+    [0, 100, 300, 500, 800][removed] *
+    level;
+
+  lines += removed;
+
+  level =
+    Math.floor(lines / 10) + 1;
+
+  updateStats();
+}
+
 function fallDelay() {
   return Math.max(
-    100,
+    90,
     900 - (level - 1) * 70
+  );
+}
+
+function canControl() {
+  return (
+    running &&
+    !paused &&
+    activePiece !== null
   );
 }
 
 function drawBoardBackground() {
   gameCtx.fillStyle = "#090a14";
+
   gameCtx.fillRect(
     0,
     0,
@@ -387,41 +565,70 @@ function drawBoardBackground() {
     gameCanvas.height
   );
 
-  gameCtx.strokeStyle = "rgba(186, 164, 225, 0.18)";
+  gameCtx.strokeStyle =
+    "rgba(186, 164, 225, 0.18)";
+
   gameCtx.lineWidth = 1;
 
-  for (let x = 0; x <= COLS; x++) {
+  for (
+    let x = 0;
+    x <= COLS;
+    x++
+  ) {
     gameCtx.beginPath();
-    gameCtx.moveTo(x * CELL, 0);
-    gameCtx.lineTo(x * CELL, ROWS * CELL);
+
+    gameCtx.moveTo(
+      x * CELL,
+      0
+    );
+
+    gameCtx.lineTo(
+      x * CELL,
+      ROWS * CELL
+    );
+
     gameCtx.stroke();
   }
 
-  for (let y = 0; y <= ROWS; y++) {
+  for (
+    let y = 0;
+    y <= ROWS;
+    y++
+  ) {
     gameCtx.beginPath();
-    gameCtx.moveTo(0, y * CELL);
-    gameCtx.lineTo(COLS * CELL, y * CELL);
+
+    gameCtx.moveTo(
+      0,
+      y * CELL
+    );
+
+    gameCtx.lineTo(
+      COLS * CELL,
+      y * CELL
+    );
+
     gameCtx.stroke();
   }
 }
 
-function drawBlock(x, y, type, alpha = 1) {
-  if (y < 0) {
-    return;
-  }
+function drawBlock(
+  context,
+  pixelX,
+  pixelY,
+  size,
+  type,
+  alpha = 1
+) {
+  context.save();
+  context.globalAlpha = alpha;
 
-  const pixelX = x * CELL;
-  const pixelY = y * CELL;
-
-  gameCtx.save();
-  gameCtx.globalAlpha = alpha;
-
-  const gradient = gameCtx.createLinearGradient(
-    pixelX,
-    pixelY,
-    pixelX,
-    pixelY + CELL
-  );
+  const gradient =
+    context.createLinearGradient(
+      pixelX,
+      pixelY,
+      pixelX,
+      pixelY + size
+    );
 
   gradient.addColorStop(
     0,
@@ -433,99 +640,206 @@ function drawBlock(x, y, type, alpha = 1) {
     COLORS[type]
   );
 
-  gameCtx.fillStyle = gradient;
+  context.fillStyle = gradient;
 
-  gameCtx.fillRect(
+  context.fillRect(
     pixelX + 2,
     pixelY + 2,
-    CELL - 4,
-    CELL - 4
+    size - 4,
+    size - 4
   );
 
-  gameCtx.strokeStyle = "rgba(255, 255, 255, 0.45)";
+  context.strokeStyle =
+    "rgba(255, 255, 255, 0.45)";
 
-  gameCtx.strokeRect(
+  context.strokeRect(
     pixelX + 2.5,
     pixelY + 2.5,
-    CELL - 5,
-    CELL - 5
+    size - 5,
+    size - 5
   );
 
-  gameCtx.fillStyle = "rgba(255, 255, 255, 0.17)";
+  context.fillStyle =
+    "rgba(255, 255, 255, 0.17)";
 
-  gameCtx.fillRect(
+  context.fillRect(
     pixelX + 5,
     pixelY + 5,
-    CELL - 10,
-    5
+    size - 10,
+    Math.max(3, size * 0.15)
   );
 
-  gameCtx.restore();
+  context.restore();
 }
 
-function drawPose(piece, alpha = 1) {
-  const image = poseImages[piece.type];
+function drawPoseImage(
+  context,
+  type,
+  rotation,
+  centerX,
+  centerY,
+  cellSize,
+  alpha = 1
+) {
+  const image = poseImages[type];
 
   if (!image) {
     return;
   }
 
-  const bounds = occupiedBounds(piece.matrix);
+  const config = POSE_CONFIG[type];
 
-  const x = (piece.x + bounds.minX) * CELL;
-  const y = (piece.y + bounds.minY) * CELL;
+  const targetWidth =
+    config.nativeCols * cellSize;
 
-  if (y + bounds.height * CELL < 0) {
-    return;
-  }
+  const targetHeight =
+    config.nativeRows * cellSize;
 
-  gameCtx.save();
-  gameCtx.globalAlpha = alpha;
-
-  gameCtx.drawImage(
-    image,
-    x,
-    y,
-    bounds.width * CELL,
-    bounds.height * CELL
+  /*
+   * Das ursprüngliche Seitenverhältnis
+   * des PNG-Bildes bleibt erhalten.
+   */
+  const containScale = Math.min(
+    targetWidth / image.naturalWidth,
+    targetHeight / image.naturalHeight
   );
 
-  gameCtx.restore();
+  const drawWidth =
+    image.naturalWidth *
+    containScale *
+    config.scale;
+
+  const drawHeight =
+    image.naturalHeight *
+    containScale *
+    config.scale;
+
+  /*
+   * Grundausrichtung des PNG-Bildes
+   * plus die aktuelle Drehung des Tetrominos.
+   */
+  const quarterTurns =
+    config.baseQuarterTurns +
+    rotation;
+
+  context.save();
+
+  context.translate(
+    centerX,
+    centerY
+  );
+
+  context.rotate(
+    quarterTurns *
+    Math.PI /
+    2
+  );
+
+  context.globalAlpha = alpha;
+  context.imageSmoothingEnabled = false;
+
+  context.drawImage(
+    image,
+    -drawWidth / 2,
+    -drawHeight / 2,
+    drawWidth,
+    drawHeight
+  );
+
+  context.restore();
 }
 
-function drawPiece(piece, options = {}) {
-  const ghost = options.ghost === true;
+function drawActivePose(piece) {
+  const bounds =
+    occupiedBounds(piece.matrix);
 
-  piece.matrix.forEach((row, y) => {
-    row.forEach((value, x) => {
-      if (!value) {
-        return;
-      }
+  const boxX =
+    (piece.x + bounds.minX) *
+    CELL;
 
-      drawBlock(
-        piece.x + x,
-        piece.y + y,
-        piece.type,
-        ghost ? 0.18 : 0.9
-      );
-    });
-  });
+  const boxY =
+    (piece.y + bounds.minY) *
+    CELL;
+
+  const boxWidth =
+    bounds.width * CELL;
+
+  const boxHeight =
+    bounds.height * CELL;
+
+  drawPoseImage(
+    gameCtx,
+    piece.type,
+    piece.rotation,
+    boxX + boxWidth / 2,
+    boxY + boxHeight / 2,
+    CELL,
+    1
+  );
+}
+
+function drawPiece(
+  piece,
+  {
+    ghost = false
+  } = {}
+) {
+  piece.matrix.forEach(
+    (row, y) => {
+      row.forEach((value, x) => {
+        if (!value) {
+          return;
+        }
+
+        const boardX =
+          piece.x + x;
+
+        const boardY =
+          piece.y + y;
+
+        if (boardY < 0) {
+          return;
+        }
+
+        drawBlock(
+          gameCtx,
+          boardX * CELL,
+          boardY * CELL,
+          CELL,
+          piece.type,
+          ghost ? 0.16 : 0.78
+        );
+      });
+    }
+  );
 
   if (!ghost) {
-    drawPose(piece, 1);
+    drawActivePose(piece);
   }
 }
 
 function draw() {
   drawBoardBackground();
 
-  for (let y = 0; y < ROWS; y++) {
-    for (let x = 0; x < COLS; x++) {
-      if (board[y][x]) {
+  for (
+    let y = 0;
+    y < ROWS;
+    y++
+  ) {
+    for (
+      let x = 0;
+      x < COLS;
+      x++
+    ) {
+      const type = board[y][x];
+
+      if (type) {
         drawBlock(
-          x,
-          y,
-          board[y][x],
+          gameCtx,
+          x * CELL,
+          y * CELL,
+          CELL,
+          type,
           1
         );
       }
@@ -544,7 +858,7 @@ function draw() {
       y: ghostY + 1
     })
   ) {
-    ghostY++;
+    ghostY += 1;
   }
 
   drawPiece(
@@ -560,7 +874,11 @@ function draw() {
   drawPiece(activePiece);
 }
 
-function drawPreview(context, canvas, type) {
+function drawPreview(
+  context,
+  canvas,
+  type
+) {
   context.clearRect(
     0,
     0,
@@ -573,48 +891,72 @@ function drawPreview(context, canvas, type) {
   }
 
   const matrix = SHAPES[type];
-  const bounds = occupiedBounds(matrix);
+  const bounds =
+    occupiedBounds(matrix);
 
-  const blockSize = Math.min(
-    31,
-    Math.floor((canvas.width - 18) / bounds.width),
-    Math.floor((canvas.height - 18) / bounds.height)
+  const padding = 16;
+
+  const cellSize = Math.min(
+    34,
+
+    Math.floor(
+      (canvas.width - padding * 2) /
+      bounds.width
+    ),
+
+    Math.floor(
+      (canvas.height - padding * 2) /
+      bounds.height
+    )
   );
 
-  const totalWidth = bounds.width * blockSize;
-  const totalHeight = bounds.height * blockSize;
+  const totalWidth =
+    bounds.width * cellSize;
 
-  const offsetX = (canvas.width - totalWidth) / 2;
-  const offsetY = (canvas.height - totalHeight) / 2;
+  const totalHeight =
+    bounds.height * cellSize;
 
-  matrix.forEach((row, y) => {
-    row.forEach((value, x) => {
-      if (!value) {
-        return;
-      }
+  const offsetX =
+    (canvas.width - totalWidth) / 2;
 
-      context.fillStyle = COLORS[type];
+  const offsetY =
+    (canvas.height - totalHeight) / 2;
 
-      context.fillRect(
-        offsetX + (x - bounds.minX) * blockSize + 2,
-        offsetY + (y - bounds.minY) * blockSize + 2,
-        blockSize - 4,
-        blockSize - 4
-      );
-    });
-  });
+  matrix.forEach(
+    (row, y) => {
+      row.forEach((value, x) => {
+        if (!value) {
+          return;
+        }
 
-  const image = poseImages[type];
+        drawBlock(
+          context,
 
-  if (image) {
-    context.drawImage(
-      image,
-      offsetX,
-      offsetY,
-      totalWidth,
-      totalHeight
-    );
-  }
+          offsetX +
+          (x - bounds.minX) *
+          cellSize,
+
+          offsetY +
+          (y - bounds.minY) *
+          cellSize,
+
+          cellSize,
+          type,
+          0.78
+        );
+      });
+    }
+  );
+
+  drawPoseImage(
+    context,
+    type,
+    0,
+    offsetX + totalWidth / 2,
+    offsetY + totalHeight / 2,
+    cellSize,
+    1
+  );
 }
 
 function drawPreviews() {
@@ -632,10 +974,8 @@ function drawPreviews() {
 }
 
 function lighten(hex, amount) {
-  const value = parseInt(
-    hex.slice(1),
-    16
-  );
+  const value =
+    parseInt(hex.slice(1), 16);
 
   const red = Math.min(
     255,
@@ -656,26 +996,46 @@ function lighten(hex, amount) {
 }
 
 function updateStats() {
-  scoreNode.textContent = score.toLocaleString("es-ES");
-  levelNode.textContent = level;
-  linesNode.textContent = lines;
+  scoreNode.textContent =
+    score.toLocaleString("es-ES");
+
+  levelNode.textContent =
+    String(level);
+
+  linesNode.textContent =
+    String(lines);
 }
 
-function showOverlay(title, message, buttonText) {
-  overlayTitle.textContent = title;
-  overlayMessage.textContent = message;
-  overlayButton.textContent = buttonText;
+function showOverlay(
+  title,
+  message,
+  buttonText
+) {
+  overlayTitle.textContent =
+    title;
 
-  overlay.classList.add("is-visible");
+  overlayMessage.textContent =
+    message;
+
+  overlayButton.textContent =
+    buttonText;
+
+  overlay.classList.add(
+    "is-visible"
+  );
 }
 
 function hideOverlay() {
-  overlay.classList.remove("is-visible");
+  overlay.classList.remove(
+    "is-visible"
+  );
 }
 
 function startGame() {
-  if (animationId) {
-    cancelAnimationFrame(animationId);
+  if (animationId !== null) {
+    cancelAnimationFrame(
+      animationId
+    );
   }
 
   board = createBoard();
@@ -689,10 +1049,14 @@ function startGame() {
   level = 1;
 
   nextType = randomType();
-  activePiece = createPiece(randomType());
+  activePiece =
+    createPiece(randomType());
 
   running = true;
   paused = false;
+
+  pauseButton.textContent =
+    "Pausa";
 
   fallAccumulator = 0;
   lastTime = performance.now();
@@ -702,7 +1066,10 @@ function startGame() {
   hideOverlay();
   draw();
 
-  animationId = requestAnimationFrame(gameLoop);
+  animationId =
+    requestAnimationFrame(
+      gameLoop
+    );
 }
 
 function endGame() {
@@ -710,7 +1077,9 @@ function endGame() {
 
   showOverlay(
     "Fin de la partida",
-    `Has conseguido ${score.toLocaleString("es-ES")} puntos. ¡Mamá estará orgullosa!`,
+
+    `Has conseguido ${score.toLocaleString("es-ES")} puntos. ¡Pilar estará orgullosa!`,
+
     "Jugar otra vez"
   );
 }
@@ -722,10 +1091,17 @@ function togglePause() {
 
   paused = !paused;
 
+  pauseButton.textContent =
+    paused
+      ? "Continuar"
+      : "Pausa";
+
   if (paused) {
     showOverlay(
       "Pausa",
+
       "Descansa un momento y continúa cuando quieras",
+
       "Continuar"
     );
   } else {
@@ -749,51 +1125,74 @@ function gameLoop(time) {
   if (!paused) {
     fallAccumulator += delta;
 
-    if (fallAccumulator >= fallDelay()) {
-      softDrop();
+    if (
+      fallAccumulator >=
+      fallDelay()
+    ) {
+      stepDown(false);
     }
 
     draw();
   }
 
-  animationId = requestAnimationFrame(gameLoop);
+  animationId =
+    requestAnimationFrame(
+      gameLoop
+    );
 }
 
-document.addEventListener("keydown", (event) => {
-  if (
-    [
+document.addEventListener(
+  "keydown",
+  (event) => {
+    const controlledKeys = [
       "ArrowLeft",
       "ArrowRight",
       "ArrowDown",
       "ArrowUp",
       " "
-    ].includes(event.key)
-  ) {
-    event.preventDefault();
-  }
+    ];
 
-  if (event.key === "ArrowLeft") {
-    move(-1);
-  } else if (event.key === "ArrowRight") {
-    move(1);
-  } else if (event.key === "ArrowDown") {
-    softDrop();
-  } else if (event.key === "ArrowUp") {
-    rotatePiece();
-  } else if (event.key === " ") {
-    hardDrop();
-  } else if (
-    event.key.toLowerCase() === "c" ||
-    event.key === "Shift"
-  ) {
-    holdPiece();
-  } else if (
-    event.key.toLowerCase() === "p" ||
-    event.key === "Escape"
-  ) {
-    togglePause();
+    if (
+      controlledKeys.includes(
+        event.key
+      )
+    ) {
+      event.preventDefault();
+    }
+
+    if (
+      event.key === "ArrowLeft"
+    ) {
+      move(-1);
+    } else if (
+      event.key === "ArrowRight"
+    ) {
+      move(1);
+    } else if (
+      event.key === "ArrowDown"
+    ) {
+      stepDown(true);
+    } else if (
+      event.key === "ArrowUp"
+    ) {
+      rotatePiece();
+    } else if (
+      event.key === " "
+    ) {
+      hardDrop();
+    } else if (
+      event.key.toLowerCase() === "c" ||
+      event.key === "Shift"
+    ) {
+      holdPiece();
+    } else if (
+      event.key.toLowerCase() === "p" ||
+      event.key === "Escape"
+    ) {
+      togglePause();
+    }
   }
-});
+);
 
 document
   .querySelectorAll("[data-action]")
@@ -807,12 +1206,15 @@ document
           left: () => move(-1),
           right: () => move(1),
           rotate: rotatePiece,
-          down: softDrop,
+          down: () => stepDown(true),
           drop: hardDrop,
           hold: holdPiece
         };
 
-        const action = actions[button.dataset.action];
+        const action =
+          actions[
+            button.dataset.action
+          ];
 
         if (action) {
           action();
@@ -832,22 +1234,19 @@ overlayButton.addEventListener(
   }
 );
 
-document
-  .getElementById("restartButton")
-  .addEventListener(
-    "click",
-    startGame
-  );
+restartButton.addEventListener(
+  "click",
+  startGame
+);
 
-document
-  .getElementById("pauseButton")
-  .addEventListener(
-    "click",
-    togglePause
-  );
+pauseButton.addEventListener(
+  "click",
+  togglePause
+);
 
-loadImages().then(() => {
-  activePiece = createPiece("T");
+loadPoseImages().then(() => {
+  activePiece =
+    createPiece("T");
 
   draw();
   drawPreviews();
